@@ -19,6 +19,10 @@ import androidx.core.content.ContextCompat
 import com.aiden.tflite.realtime_image_classifier.databinding.ActivityMainBinding
 import java.io.IOException
 import java.util.*
+import kotlin.concurrent.thread
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.ERROR
+
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater, null, false) }
@@ -42,6 +46,9 @@ class MainActivity : AppCompatActivity() {
     private var isProcessingFrame = false
     private var handlerThread: HandlerThread? = null
     private var handler: Handler? = null
+    private var isSafe: Boolean = true
+    private val detectQueue = arrayListOf<Int>()
+    private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +56,30 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         initClassifier()
         checkPermission()
+
+        initQueue()
+        initTextToSpeech()
+
+    }
+
+    private fun initQueue(){
+        for(i in 0 until 10)
+            detectQueue.add(0)
+    }
+
+    private fun initTextToSpeech(){
+        tts = TextToSpeech(this){
+            if(it==TextToSpeech.SUCCESS) {
+                val result = tts?.setLanguage(Locale.KOREAN)
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Toast.makeText(this, "Language not supported", Toast.LENGTH_SHORT).show()
+                    return@TextToSpeech
+                }
+                Toast.makeText(this, "TTS setting successed", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(this,"TTS init failed", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onResume() {
@@ -143,6 +174,11 @@ class MainActivity : AppCompatActivity() {
         return null
     }
 
+    private fun ttsSpeak(strTTS:String){
+        tts?.speak(strTTS,TextToSpeech.QUEUE_ADD,null,null)
+        tts?.playSilentUtterance(3000,TextToSpeech.QUEUE_ADD,null)
+    }
+
     private fun getScreenOrientation(): Int {
         val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             this.display
@@ -177,6 +213,17 @@ class MainActivity : AppCompatActivity() {
                 val startTime = SystemClock.uptimeMillis()
                 val output = classifier.classify(rgbFrameBitmap!!, sensorOrientation)
                 val elapsedTime = SystemClock.uptimeMillis() - startTime
+
+                detectQueue.removeAt(0)
+                detectQueue.add(output.first.toInt())
+                if((detectQueue[0] and detectQueue[1] and detectQueue[2] and detectQueue[3] and detectQueue[4] and
+                            detectQueue[5] and detectQueue[6] and detectQueue[7] and detectQueue[8] and detectQueue[9])==1){
+                    isSafe = false
+                    ttsSpeak("전방에 장애물이 있습니다")}
+                else{
+                    isSafe = true
+                    tts?.playSilentUtterance(100,TextToSpeech.QUEUE_FLUSH,null)}
+
                 runOnUiThread {
                     binding.textResult.text =
                         String.format(
@@ -186,11 +233,16 @@ class MainActivity : AppCompatActivity() {
                             output.second * 100,
                             elapsedTime
                         )
+                    if(!isSafe)
+                        binding.detectResult.text = "전방 위험"
+                    else
+                        binding.detectResult.text = "전방 안전"
                 }
             }
             image.close()
             isProcessingFrame = false
         }
+
     }
 
 }

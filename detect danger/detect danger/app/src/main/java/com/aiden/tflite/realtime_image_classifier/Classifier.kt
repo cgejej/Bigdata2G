@@ -104,9 +104,9 @@ class Classifier(private var context: Context, private val modelName: String) {
     private fun initModelShape() {
         val inputTensor = model.getInputTensor(0)
         val inputShape = inputTensor.shape()
-        modelInputChannel = inputShape[0]
-        modelInputWidth = inputShape[1]
-        modelInputHeight = inputShape[2]
+        modelInputChannel = 3
+        modelInputWidth = 224
+        modelInputHeight = 224
 
         inputImage = TensorImage(inputTensor.dataType())
 
@@ -115,7 +115,7 @@ class Classifier(private var context: Context, private val modelName: String) {
     }
 
     fun classify(image: Bitmap, sensorOrientation: Int): Pair<String, Float> {
-        inputImage = loadImage(image, sensorOrientation)
+        inputImage = loadImage(image, sensorOrientation) //이미지를 회전시켜서 넣는다.
         val inputs = arrayOf<Any>(inputImage.buffer)
         val outputs = mutableMapOf<Int, Any>()
         outputs[0] = outputBuffer.buffer.rewind()
@@ -163,7 +163,7 @@ class Classifier(private var context: Context, private val modelName: String) {
     fun getModelInputSize(): Size = if (isInitialized.not()) Size(0, 0) else Size(modelInputWidth, modelInputHeight)
 
     companion object {
-        const val IMAGENET_CLASSIFY_MODEL = "demo1.tflite"
+        const val IMAGENET_CLASSIFY_MODEL = "demoV2.tflite"
         const val LABEL_FILE = "demo1_labels.txt"
     }
 }
