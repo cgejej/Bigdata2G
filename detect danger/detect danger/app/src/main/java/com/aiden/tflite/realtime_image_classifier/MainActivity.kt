@@ -105,6 +105,9 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         classifier.finish()
         super.onDestroy()
+        tts?.stop()
+        tts?.shutdown()
+        tts = null
     }
 
     private fun initClassifier() {
