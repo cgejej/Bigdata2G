@@ -8,6 +8,7 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.ImageReader
+import android.media.MediaRouter
 import android.os.*
 import android.util.Size
 import android.view.Surface
@@ -22,6 +23,7 @@ import java.util.*
 import kotlin.concurrent.thread
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.ERROR
+import android.speech.tts.UtteranceProgressListener
 
 
 class MainActivity : AppCompatActivity() {
@@ -176,11 +178,25 @@ class MainActivity : AppCompatActivity() {
         }
         return null
     }
+    private var ttsTime:Long = 0
 
-    private fun ttsSpeak(strTTS:String){
-        tts?.speak(strTTS,TextToSpeech.QUEUE_ADD,null,null)
-        tts?.playSilentUtterance(3000,TextToSpeech.QUEUE_ADD,null)
+    private fun startTTS(output:Pair<String, Float>,time:Long){
+        detectQueue.removeAt(0)
+        detectQueue.add(output.first.toInt())
+        if((detectQueue[0] and detectQueue[1] and detectQueue[2] and detectQueue[3] and detectQueue[4] and
+                    detectQueue[5] and detectQueue[6] and detectQueue[7] and detectQueue[8] and detectQueue[9])==1)
+            isSafe = false
+        else
+            isSafe = true
+
+        if(time > 3000 && isSafe == false){
+            tts?.speak("전방에 장애물이 있습니다.",TextToSpeech.QUEUE_ADD,null,null)
+            ttsTime = 0
+        }
+//        else if (isSafe == true)
+//            tts?.playSilentUtterance(100,TextToSpeech.QUEUE_FLUSH,null)
     }
+
 
     private fun getScreenOrientation(): Int {
         val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -216,16 +232,8 @@ class MainActivity : AppCompatActivity() {
                 val startTime = SystemClock.uptimeMillis()
                 val output = classifier.classify(rgbFrameBitmap!!, sensorOrientation)
                 val elapsedTime = SystemClock.uptimeMillis() - startTime
-
-                detectQueue.removeAt(0)
-                detectQueue.add(output.first.toInt())
-                if((detectQueue[0] and detectQueue[1] and detectQueue[2] and detectQueue[3] and detectQueue[4] and
-                            detectQueue[5] and detectQueue[6] and detectQueue[7] and detectQueue[8] and detectQueue[9])==1){
-                    isSafe = false
-                    ttsSpeak("전방에 장애물이 있습니다")}
-                else{
-                    isSafe = true
-                    tts?.playSilentUtterance(100,TextToSpeech.QUEUE_FLUSH,null)}
+                ttsTime += elapsedTime
+                startTTS(output,ttsTime)
 
                 runOnUiThread {
                     binding.textResult.text =

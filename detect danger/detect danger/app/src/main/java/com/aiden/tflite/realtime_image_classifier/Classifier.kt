@@ -31,7 +31,7 @@ class Classifier(private var context: Context, private val modelName: String) {
     private var isInitialized = false
 
     fun init() {
-        model = createGPUModel(context, modelName)
+        model = createNNAPIModel(context, modelName)
         initModelShape()
         labels.addAll(FileUtil.loadLabels(context, LABEL_FILE))
         isInitialized = true
