@@ -27,20 +27,22 @@
 
     <TextView
         android:id="@+id/detect_result"
-        android:layout_width="391dp"
-        android:layout_height="44dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:layout_marginBottom="200dp"
-        android:background="@color/white"
-        android:textAlignment="center"
-        android:textSize="34sp"
+        tools:text="Detect"
+        tools:textSize="30sp"
+        tools:textStyle="bold"
+        tools:background="@color/white"
+        android:text="Detect"
+        android:textSize="30sp"
         android:textStyle="bold"
+        android:background="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/text_result"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:text="Detect" />
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

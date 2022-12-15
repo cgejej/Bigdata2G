@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initQueue(){
-        for(i in 0 until 10)
+        for(i in 0 until 12)
             detectQueue.add(0)
     }
 
@@ -183,43 +183,50 @@ class MainActivity : AppCompatActivity() {
     private fun startTTS(output:Pair<String, Float>,time:Long){
         detectQueue.removeAt(0)
         detectQueue.add(output.first.toInt())
-        if(time>1500 && detectQueue.all { it == 2 }){
+
+        if(detectQueue.contains(0)||detectQueue.contains(9)||detectQueue.contains(8))
+            isSafe = true
+
+        else if(time>2000 && detectQueue.all {it == 2}){
             isSafe = false
             tts?.speak("전방에 나무가 있습니다",TextToSpeech.QUEUE_ADD,null,null)
             ttsTime = 0
         }
-        else if(time>1500 && detectQueue.all { it == 3 }){
+        else if(time>2000 && detectQueue.all { it == 3 }){
             isSafe = false
             tts?.speak("전방에 사람이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
             ttsTime = 0
         }
-        else if(time>1500 && detectQueue.all { it == 4 }){
+        else if(time>2000 && detectQueue.all { it == 4 }){
             isSafe = false
             tts?.speak("전방에 기둥이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
             ttsTime = 0
         }
-        else if(time>1500 && detectQueue.all { it == 5 }){
+        else if(time>2000 && detectQueue.all { it == 5 }){
             isSafe = false
             tts?.speak("전방에 차량이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
             ttsTime = 0
         }
-        else if(time>1500 && detectQueue.all { it == 6 }){
+        else if(time>2000 && detectQueue.all { it == 6 }){
             isSafe = false
             tts?.speak("전방에 벽이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
             ttsTime = 0
         }
-        else if(time>1500 && detectQueue.all { it == 7 }){
+        else if(time>2000 && detectQueue.all { it == 7 }){
             isSafe = false
             tts?.speak("전방에 문이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
             ttsTime = 0
         }
-        else if(time>3000 && detectQueue.all {it != 0}){
+        else if(time>2000 && detectQueue.all { it == 91 }){
+            isSafe = true
+            tts?.speak("전방에 횡단보도 입니다",TextToSpeech.QUEUE_ADD,null,null)
+            ttsTime = 0
+        }
+        else if(time>2000){
             isSafe = false
             tts?.speak("전방에 장애물이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
             ttsTime = 0
         }
-        else
-            isSafe = true
 
 //        else if (isSafe == true)
 //            tts?.playSilentUtterance(100,TextToSpeech.QUEUE_FLUSH,null)
@@ -273,9 +280,9 @@ class MainActivity : AppCompatActivity() {
                             elapsedTime
                         )
                     if(!isSafe)
-                        binding.detectResult.text = "전방 위험"
+                        binding.detectResult.text = " 전방 위험 "
                     else
-                        binding.detectResult.text = "전방 안전"
+                        binding.detectResult.text = " 전방 안전 "
                 }
             }
             image.close()
