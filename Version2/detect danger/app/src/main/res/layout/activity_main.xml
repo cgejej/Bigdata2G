@@ -25,24 +25,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Result" />
 
-    <TextView
-        android:id="@+id/detect_result"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        tools:text="Detect"
-        tools:textSize="30sp"
-        tools:textStyle="bold"
-        tools:background="@color/white"
-        android:text="Detect"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:background="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/text_result"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

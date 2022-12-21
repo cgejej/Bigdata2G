@@ -163,7 +163,7 @@ class Classifier(private var context: Context, private val modelName: String) {
     fun getModelInputSize(): Size = if (isInitialized.not()) Size(0, 0) else Size(modelInputWidth, modelInputHeight)
 
     companion object {
-        const val IMAGENET_CLASSIFY_MODEL = "demoV5_1.tflite"
+        const val IMAGENET_CLASSIFY_MODEL = "demoV8.tflite"
         const val LABEL_FILE = "demo_labels.txt"
     }
 }

@@ -24,6 +24,7 @@ import kotlin.concurrent.thread
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.ERROR
 import android.speech.tts.UtteranceProgressListener
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initQueue(){
-        for(i in 0 until 12)
+        for(i in 0 until 20)
             detectQueue.add(0)
     }
 
@@ -186,51 +187,88 @@ class MainActivity : AppCompatActivity() {
 
         if(detectQueue.contains(0)||detectQueue.contains(9)||detectQueue.contains(8))
             isSafe = true
-
-        else if(time>2000 && detectQueue.all {it == 2}){
-            isSafe = false
-            tts?.speak("전방에 나무가 있습니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
+        else if(time>1500) {
+            when (getMostFrequentValue(detectQueue)) {
+                2 -> {
+                    isSafe = false
+                    tts?.speak("전방에 나무가 있습니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+                3 -> {
+                    isSafe = false
+                    tts?.speak("전방에 사람이 있습니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+                4 -> {
+                    isSafe = false
+                    tts?.speak("전방에 기둥이 있습니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+                5 -> {
+                    isSafe = false
+                    tts?.speak("전방에 차량이 있습니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+                6 -> {
+                    isSafe = false
+                    tts?.speak("전방에 벽이 있습니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+                7 -> {
+                    isSafe = false
+                    tts?.speak("전방에 문이 있습니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+                91 -> {
+                    isSafe = true
+                    tts?.speak("전방에 횡단보도 입니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+                else -> {
+                    isSafe = false
+                    tts?.speak("전방에 장애물이 있습니다", TextToSpeech.QUEUE_ADD, null, null)
+                    ttsTime = 0
+                }
+            }
         }
-        else if(time>2000 && detectQueue.all { it == 3 }){
-            isSafe = false
-            tts?.speak("전방에 사람이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
-        }
-        else if(time>2000 && detectQueue.all { it == 4 }){
-            isSafe = false
-            tts?.speak("전방에 기둥이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
-        }
-        else if(time>2000 && detectQueue.all { it == 5 }){
-            isSafe = false
-            tts?.speak("전방에 차량이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
-        }
-        else if(time>2000 && detectQueue.all { it == 6 }){
-            isSafe = false
-            tts?.speak("전방에 벽이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
-        }
-        else if(time>2000 && detectQueue.all { it == 7 }){
-            isSafe = false
-            tts?.speak("전방에 문이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
-        }
-        else if(time>2000 && detectQueue.all { it == 91 }){
-            isSafe = true
-            tts?.speak("전방에 횡단보도 입니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
-        }
-        else if(time>2000){
-            isSafe = false
-            tts?.speak("전방에 장애물이 있습니다",TextToSpeech.QUEUE_ADD,null,null)
-            ttsTime = 0
-        }
-
-//        else if (isSafe == true)
-//            tts?.playSilentUtterance(100,TextToSpeech.QUEUE_FLUSH,null)
     }
+
+    private fun getMostFrequentValue(array: ArrayList<Int>): Int? {
+        // Create a mutable map to store the frequency of each element in the array
+        val frequencyMap = mutableMapOf<Int, Int>()
+
+        // Iterate through the array and add each element to the map, incrementing its count by 1 each time it appears
+        for (element in array) {
+            if (element in frequencyMap) {
+                frequencyMap[element] = frequencyMap[element]!! + 1
+            } else {
+                frequencyMap[element] = 1
+            }
+        }
+        // Find the maximum frequency by using the maxBy function on the map and selecting the value of the frequency
+        val maxFrequency = frequencyMap.values.maxByOrNull { it }
+
+//        // Calculate the ratio of the maximum frequency to the total number of elements in the array
+//        val ratio = maxFrequency!!.toDouble() / array.size.toDouble()
+//
+//        // Check the ratio
+//        if (ratio > 0.25) {
+//            // Iterate through the map and find the key that has the maximum frequency
+//            for ((key, value) in frequencyMap) {
+//                if (value == maxFrequency) {
+//                    return key
+//                }
+//            }
+//        }
+
+        for((key,value) in frequencyMap){
+            if(value == maxFrequency){
+                return key
+            }
+        }
+        return null
+    }
+
 
 
     private fun getScreenOrientation(): Int {
@@ -279,10 +317,6 @@ class MainActivity : AppCompatActivity() {
                             output.second * 100,
                             elapsedTime
                         )
-                    if(!isSafe)
-                        binding.detectResult.text = " 전방 위험 "
-                    else
-                        binding.detectResult.text = " 전방 안전 "
                 }
             }
             image.close()
